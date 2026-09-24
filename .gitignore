@@ -1,0 +1,12 @@
+# Private material. Never commit.
+docs/references/
+
+# RouterOS files that contain the whole config
+*.backup
+supout.rif
+
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
