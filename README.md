@@ -4,6 +4,8 @@ My DN42 network: the public part of the router configuration and a few notes. Ge
 
 Everything runs on one MikroTik hAP ax³ with RouterOS 7.23.7 (long-term). The same router is also my home router, so most of its configuration is Wi-Fi, DHCP, NAT and other home things. Only the DN42 part is here.
 
+Everything in this repo was committed on 24 September 2026 and hasn't been updated since, so it shows the router as it was that day.
+
 ## Setup
 
 - ASN `AS4242422169`, prefix `fd14:e78e:db29::/48`. The `route6` object in the registry has `max-length: 48`.
