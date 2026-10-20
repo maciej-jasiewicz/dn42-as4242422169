@@ -8,7 +8,7 @@ Commands I use on the router and a few things that are easy to forget. The outpu
 /interface/wireguard/peers/print detail
 ```
 
-`last-handshake` is the thing to look at. A WireGuard interface shows `R` (running) even when the other end is gone. BGP keepalives go out every minute, so the handshake renews about every two minutes. Anything much older than that means the tunnel is not working.
+`last-handshake` is the thing to look at. A WireGuard interface shows `R` (running) even when the other end is gone. WireGuard renews the handshake every two minutes while there is traffic, and the BGP keepalives (every minute) make sure there always is, so on a working tunnel it stays around two minutes or less. Anything much older than that means the tunnel is not working.
 
 | Tunnel | rx | tx | last handshake |
 |---|---|---|---|
@@ -63,7 +63,7 @@ de2 and uk1 look the same apart from the names, Kioubit's router ID, the counter
 /routing/route/print detail where dst-address=<DN42_PREFIX>
 ```
 
-The first one has to show the blackhole route as active. Without it nothing gets announced. The last one shows the path from each session. `contribution=filtered` means `dn42-in` rejected it. Host routes, anything shorter than /44 and anything outside `fd00::/8` are rejected on purpose.
+The first one has to show the blackhole route as active. Without it nothing gets announced. The last one shows the path from each session. `contribution=filtered` means `dn42-in` rejected it. Anything longer than /64 (host routes included), shorter than /44 or outside `fd00::/8` is rejected on purpose.
 
 `/routing/bgp/advertisements/print` stays empty unless `output.keep-sent-attributes=yes` is set on the connection.
 
@@ -86,10 +86,12 @@ The PPPoE MTU is 1492. WireGuard over IPv4 adds 60 bytes (20 IP + 8 UDP + 32 Wir
 /ping <ENDPOINT_IPV4> size=1480 do-not-fragment
 ```
 
+1480 is a full 1420-byte inner packet plus the 60 bytes of overhead. RouterOS counts `size` with the IP header, so if this gets through with `do-not-fragment`, full tunnel packets fit on the path to that endpoint.
+
 ## Adding a peering
 
-1. WireGuard interface (MTU 1420) and peer with `allowed-address=::/0,0.0.0.0/0`.
+1. WireGuard interface (MTU 1420) and peer with `allowed-address=::/0,0.0.0.0/0`, as in [wireguard.rsc](routeros/wireguard.rsc).
 2. `fe80::2169/64` on the interface.
 3. Interface into the `DN42` list.
 4. Listen port into "Allow DN42 WireGuard".
-5. BGP connection with the `%interface` addresses, `dn42-in`, `dn42-out` and `redistribute=static`.
+5. BGP connection like the ones in [bgp.rsc](routeros/bgp.rsc): `%interface` on both addresses, `dn42-in`, `dn42-out` and `redistribute=static`.
